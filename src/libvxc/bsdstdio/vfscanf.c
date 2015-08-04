@@ -645,7 +645,11 @@ literal:
 				*p = 0;
 				res = strtod(buf, (char **) NULL);
 				if (flags & LONGDBL)
+					#ifndef SOFT_FLOAT
 					*va_arg(ap, long double *) = res;
+					#else
+					*va_arg(ap, double *) = res;
+					#endif
 				else if (flags & LONG)
 					*va_arg(ap, double *) = res;
 				else

@@ -43,6 +43,8 @@ VX32_LDLIBS := -lc -lgcc
 HAVE_X87 = yes
 ifdef HAVE_X87
 VX32_CFLAGS += -m80387 -mfp-ret-in-387
+else
+VX32_CFLAGS += -msoft-float -mno-fp-ret-in-387 -DSOFT_FLOAT
 endif
 
 

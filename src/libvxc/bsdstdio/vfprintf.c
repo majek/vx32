@@ -473,7 +473,11 @@ reswitch:	switch (ch) {
 			}
 
 			if (flags & LONGDBL) {
+				#ifndef SOFT_FLOAT
 				_double = (double) GETARG(long double);
+				#else
+				_double = (double) GETARG(double);
+				#endif
 			} else {
 				_double = GETARG(double);
 			}
