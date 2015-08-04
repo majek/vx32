@@ -195,7 +195,7 @@ static vxmmap *chunk_map(vxmem *mem, uint32_t flags)
 		return mem->mapped;
 	}
 
-	mm = malloc(sizeof *mm);
+	mm = calloc(1, sizeof *mm);
 	if (mm == NULL)
 		return NULL;
 	if ((v = mmap(0, chunk->size, PROT_NONE, MAP_32BIT | (vx_elfbigmem ? MAP_PRIVATE : MAP_SHARED), chunk->fd, 0)) == (void*)-1) {

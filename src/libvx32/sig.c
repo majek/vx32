@@ -268,7 +268,7 @@ int vx32_siginit(void)
 	if (ss.ss_flags & SS_DISABLE) {
 		// Allocate an alternate signal stack.
 		ss.ss_size = 64*1024;
-		stk = malloc(ss.ss_size);
+		stk = calloc(1, ss.ss_size);
 		if (stk == NULL)
 			return -1;
 		ss.ss_flags = 0;

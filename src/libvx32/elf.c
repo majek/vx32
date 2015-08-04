@@ -300,7 +300,7 @@ static int elfloader(vxproc *proc,
 	uint32_t envc;
 	argc = countargs(argv);
 	envc = countargs(envp);
-	uint32_t *argvenv = malloc((argc+1+envc+1)*sizeof argvenv[0]);
+	uint32_t *argvenv = calloc(1, (argc+1+envc+1)*sizeof argvenv[0]);
 	if (argv == NULL)
 		goto error;
 	if (copystrings(mm->base, &esp, envc, envp, argvenv+argc+1) < 0 ||
