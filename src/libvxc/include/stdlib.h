@@ -1,3 +1,4 @@
+
 #ifndef STDLIB_H
 #define STDLIB_H
 
@@ -101,5 +102,14 @@ void	abort(void);
 
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
+
+
+#define WEXITSTATUS(s) (((s) & 0xff00) >> 8)
+#define WTERMSIG(s) ((s) & 0x7f)
+#define WSTOPSIG(s) WEXITSTATUS(s)
+#define WIFEXITED(s) (!WTERMSIG(s))
+#define WIFSTOPPED(s) ((short)((((s)&0xffff)*0x10001)>>8) > 0x7f00)
+#define WIFSIGNALED(s) (((s)&0xffff)-1U < 0xffu)
+
 
 #endif	// STDLIB_H

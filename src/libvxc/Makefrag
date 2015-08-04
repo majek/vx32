@@ -57,6 +57,7 @@ CLIB_OBJS = \
 		isinf.o \
 		dtoa.o \
 		getpid.o \
+		mman.o \
 	) \
 	$(addprefix libvxc/bsdstdio/, \
 		asprintf.o \
