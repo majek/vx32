@@ -28,8 +28,18 @@ vxrun_return_stub:
 	// (even on 64-bit hosts).
 	.code32
 
-	.globl	EXT(vx_rts_S_start)
-EXT(vx_rts_S_start):
+	.globl	EXT(vx_rts_S_start_sym)
+EXT(vx_rts_S_start_sym):
+
+
+
+        .code64
+       .globl  EXT(vxrun_near_return_sym)
+EXT(vxrun_near_return_sym):
+        jmp VXEMU_RETPTR_FAR(%r8)
+
+
+        .code32
 
 
 // Look up a vx32 EIP and jump to the corresponding translated code entrypoint,
@@ -49,8 +59,8 @@ EXT(vx_rts_S_start):
 //	3:	.long	dest_eip
 //		.long	3b-1b		// offset of jmp inst to backpatch
 //
-	.globl	EXT(vxrun_lookup_backpatch)
-EXT(vxrun_lookup_backpatch):
+	.globl	EXT(vxrun_lookup_backpatch_sym)
+EXT(vxrun_lookup_backpatch_sym):
 
 	// Save registers we'll need, and load the jump information.
 	movl	%edx,VSEG:VXEMU_EDX
@@ -148,8 +158,8 @@ EXT(vxrun_lookup_backpatch):
 //		jmp	vx_lookup_indirect
 //
 	.p2align 4
-	.globl	EXT(vxrun_lookup_indirect)
-EXT(vxrun_lookup_indirect):
+	.globl	EXT(vxrun_lookup_indirect_sym)
+EXT(vxrun_lookup_indirect_sym):
 
 	// Save more registers we'll need
 	movl	%eax,VSEG:VXEMU_EAX
@@ -218,8 +228,8 @@ EXT(vxrun_lookup_indirect):
 // Assumes the environment's EAX has already been saved
 // and EAX now contains the trap code to return.
 	.p2align 4
-	.globl	EXT(vxrun_gentrap)
-EXT(vxrun_gentrap):
+	.globl	EXT(vxrun_gentrap_sym)
+EXT(vxrun_gentrap_sym):
 gentrap:
 	movl	%ebx,VSEG:VXEMU_EBX
 	movl	%ecx,VSEG:VXEMU_ECX
@@ -238,13 +248,13 @@ gentrap:
 // This way we can keep the unused entry check
 // off the critical "cache hit" path for collision-free entrypoint lookups:
 // if VX code does jump to address -1, it'll just wind up here.
-	.globl	EXT(vxrun_nullfrag)
-EXT(vxrun_nullfrag):
+	.globl	EXT(vxrun_nullfrag_sym)
+EXT(vxrun_nullfrag_sym):
 	movl	VSEG:VXEMU_EBX,%ebx	// standard fragment prolog
 	movl	%eax,VSEG:VXEMU_EAX	// standard trap generation code
 	movl	$0x106,%eax		// VXTRAP_INVALID
 	jmp	gentrap
 
 
-	.globl	EXT(vx_rts_S_end)
-EXT(vx_rts_S_end):
+	.globl	EXT(vx_rts_S_end_sym)
+EXT(vx_rts_S_end_sym):

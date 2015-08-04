@@ -9,6 +9,8 @@
 #include "vx32.h"
 #include "vx32impl.h"
 
+#include "rts.h"
+
 static void sighandler(int signo, siginfo_t *si, void *ucontext)
 {
 	if (vx32_sighandler(signo, si, ucontext)){
@@ -78,9 +80,9 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip)
 		// the vx32 segment register doesn't point at emu and 
 		// won't know what to do.  If we're in vxrun_cleanup, then
 		// all the cpu registers are known to be saved.
-		extern char vx_rts_S_start[], vx_rts_S_end[];
-		extern char vx_run_S_start[];
-		if ((vx_rts_S_start <= eip && eip < vx_rts_S_end)
+		extern const char vx_run_S_start[];
+
+		if ((vx_rts_S_start_ptr <= (void*)eip && (void*)eip < vx_rts_S_end_ptr)
 		||  (vx_run_S_start <= eip && eip < (char*)vxrun_cleanup)){
 		SingleStep:
 			if(++emu->nsinglestep > 500){

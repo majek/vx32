@@ -42,6 +42,7 @@ offset	VXEMU_HOST_ESP	vxemu	host_esp
 offset	VXEMU_HOST_RSP	vxemu	host_rsp
 offset	VXEMU_RUNPTR	vxemu	runptr
 offset	VXEMU_RETPTR	vxemu	retptr
+offset	VXEMU_RETPTR_FAR	vxemu	retptr_far
 #endif
 
 offset	VXEMU_ETABLEN	vxemu	etablen

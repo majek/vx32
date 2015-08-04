@@ -24,6 +24,27 @@
 #include "os.h"
 #include "x86dis.h"
 
+#include "rts.h"
+
+
+extern char vx_rts_S_start_sym[], vx_rts_S_end_sym[];
+const void *vx_rts_S_start_ptr = vx_rts_S_start_sym;
+const void *vx_rts_S_end_ptr = vx_rts_S_end_sym;
+
+
+extern void (vxrun_gentrap_sym)();
+extern void (vxrun_lookup_backpatch_sym)();
+extern void (vxrun_lookup_indirect_sym)();
+extern void (vxrun_nullfrag_sym)();
+extern void (vxrun_near_return_sym)();
+
+void (*vxrun_gentrap)() = vxrun_gentrap_sym;
+void (*vxrun_lookup_backpatch)() = vxrun_lookup_backpatch_sym;
+void (*vxrun_lookup_indirect)() = vxrun_lookup_indirect_sym;
+void (*vxrun_nullfrag)() = vxrun_nullfrag_sym;
+void (*vxrun_near_return)() = vxrun_near_return_sym;
+
+
 // Special values for unused entries in entrypoint hash table
 #define NULLSRCEIP		((uint32_t)-1)
 #define NULLDSTEIP		((uint32_t)(uintptr_t)vxrun_nullfrag);
@@ -33,6 +54,26 @@ int vx32_debugxlate = 0;
 static uint64_t nflush;
 
 static void disassemble(uint8_t *addr0, uint8_t*, uint8_t*);
+
+static void *rts_copy = NULL;
+
+static void install_rts_copy() {
+	int rts_len = vx_rts_S_end_sym - vx_rts_S_start_sym;
+	rts_copy = mmap(NULL, rts_len, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS | MAP_32BIT, -1, 0);
+	char *dst = rts_copy;
+	memcpy(dst, vx_rts_S_start_sym, rts_len);
+	mprotect(rts_copy, rts_len, PROT_READ | PROT_EXEC);
+	vx_rts_S_start_ptr = rts_copy;
+	vx_rts_S_end_ptr = rts_copy + rts_len;
+#define FIX(symbol) symbol = (void*)((char*)rts_copy + ((char*)symbol ## _sym - (char*)vx_rts_S_start_sym));
+	FIX(vxrun_gentrap);
+	FIX(vxrun_lookup_backpatch);
+	FIX(vxrun_lookup_indirect);
+	FIX(vxrun_nullfrag);
+	FIX(vxrun_near_return);
+#undef FIX
+}
 
 // Create the emulation state for a new process
 int vxemu_init(struct vxproc *vxp)
@@ -59,6 +100,15 @@ int vxemu_init(struct vxproc *vxp)
 	e->emuptr = (uint32_t)(intptr_t)e;
 	e->etablen = etablen;
 	e->etabmask = etablen - 1;
+
+	/* rts must be in lower 4 gigs */
+	if (((uint64_t)vx_rts_S_start_sym & ~0xFFFFFFFFULL) &&
+	    rts_copy == NULL) {
+		install_rts_copy();
+	}
+	extern void vxrun_return();
+	e->retptr_far = vxrun_return;
+
 
 	// Initialize the entrypoint table and translation buffer pointers
 	vxemu_flush(e);
@@ -1286,8 +1336,6 @@ static inline void xemit_jump(
 		struct vxproc *p, uint8_t itype, unsigned ino,
 		uint8_t **extrap)
 {
-	extern void vxrun_lookup_backpatch();
-
 	struct vxemu *emu = p->emu;
 	struct vxfrag *f = emu->txfrag;
 
@@ -1460,7 +1508,6 @@ static inline void xemit_jump8(struct vxproc *p, unsigned ino)
 static inline void xemit_indir(struct vxproc *p, int itype, unsigned ino)
 {
 	unsigned i;
-	extern void vxrun_lookup_indirect();
 
 	struct vxemu *emu = p->emu;
 	struct vxfrag *f = emu->txfrag;
@@ -1531,7 +1578,6 @@ static inline void xemit_indir(struct vxproc *p, int itype, unsigned ino)
 // the first instruction and then trashed.
 static void xemit_trap(struct vxproc *p, int ino)
 {
-	extern void vxrun_gentrap();
 
 	struct vxemu *emu = p->emu;
 	struct vxfrag *f = emu->txfrag;

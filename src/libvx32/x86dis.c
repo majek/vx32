@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "rts.h"
+
 #define offsetof(S, x) (int)(&((S*)0)->x)
 #define nelem(x) (sizeof(x)/sizeof((x)[0]))
 
@@ -1669,10 +1671,6 @@ fmtseg(char *p, char *ep, xdarg *da)
 		p += snprintf(p, ep-p, "%#x:", da->seg);
 	return p;
 }
-
-extern void vxrun_gentrap(void);
-extern void vxrun_lookup_backpatch(void);
-extern void vxrun_lookup_indirect(void);
 
 static char*
 fmtarg(char *p, char *ep, xdarg *da, uint32_t npc)

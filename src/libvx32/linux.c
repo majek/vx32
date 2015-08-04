@@ -134,9 +134,10 @@ int vxemu_map(vxemu *emu, vxmmap *mm)
 
 	// Set up a far return vector in emu->retptr
 	// for getting back into 64-bit long mode.
-	extern void vxrun_return();
 	asm volatile("movw %%cs,%0" : "=r" (emu->retptr.sel));
-	emu->retptr.ofs = (uint32_t)(intptr_t)vxrun_return;
+extern void (*vxrun_near_return)();
+
+	emu->retptr.ofs = (uint32_t)(intptr_t)vxrun_near_return;
 #endif
 
 	return 0;

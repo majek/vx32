@@ -204,6 +204,8 @@ struct vxemu {
 		uint16_t sel;
 	} runptr, retptr;
 
+	uint64_t retptr_far;
+
 #endif			// x86-64
 
 	// Translated code buffer.
@@ -224,6 +226,7 @@ struct vxemu {
 	uint32_t	etablen;	// Number of entries (power of two)
 	uint32_t	etabmask;	// etablen-1
 	uint32_t	etabcnt;	// Number of entries currently in use
+
 	struct vxentry	etab[0];	// Must be last!
 };
 
@@ -243,7 +246,6 @@ int vxemu_map(vxemu*, vxmmap*);
 void vxemu_flush(vxemu*);
 
 int	vxrun(vxemu*, uint32_t dsteip);
-void	vxrun_nullfrag(void);
 void	vxrun_setup(vxemu*);
 void	vxrun_cleanup(vxemu*);
 void	vxprint(char*, ...);
