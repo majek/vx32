@@ -21,8 +21,7 @@ LD		= ld
 AR		= ar
 
 OS := $(shell uname |tr A-Z a-z)
-#ARCH := $(shell uname -m)
-ARCH=i386
+ARCH := $(shell uname -m)
 
 include Makefrag
 
