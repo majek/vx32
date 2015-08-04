@@ -53,12 +53,6 @@ static void dumpregs(struct vxproc *p)
 		c->reg[ESP], c->reg[EBP], c->reg[ESI], c->reg[EDI]);
 	fprintf(stderr, "eip %08x  eflags %08x\n",
 		c->eip, c->eflags);
-
-//	for (int i = 0; i < 8; i++) {
-//		int32_t *val = r.xmm[i].i32;
-//		fprintf(stderr, "xmm%d %08x%08x%08x%08x\n",
-//			i, val[3], val[2], val[1], val[0]);
-//	}
 }
 
 static uint32_t mode2vxc(uint32_t st)

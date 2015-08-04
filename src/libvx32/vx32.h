@@ -140,12 +140,6 @@ int	vxproc_loadelfmem(vxproc *p, const void *mem, size_t nmem,
 #define VXPC_SBRK 0x04
 #define VXPC_SETPERM 0x01
 
-// VX system call errors
-#define VXTRAP_INVARG		0x301	// Invalid argument to system call
-
-typedef int vxpcallhandler(vxproc *proc, void *pcalldata);
-int	vxproc_run_pcall(vxproc *proc, int(*)(vxproc*, void*), void*);
-
 extern int vx32_debugxlate;	// dump translations to stderr
 
 #endif
