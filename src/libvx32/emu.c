@@ -1113,6 +1113,7 @@ static int xscan(struct vxproc *p)
 		case 0x6f:					// MOVDQU
 		case 0x7e: case 0x7f:				// MOVQ/MOVDQU
 		case 0xe6:					// CVTDQ2PD
+		case 0xbc: // TZCNT
 			inp = xscan_rm(inp);
 			goto notrans;
 
