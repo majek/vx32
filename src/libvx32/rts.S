@@ -36,8 +36,7 @@ EXT(vx_rts_S_start_sym):
         .code64
        .globl  EXT(vxrun_near_return_sym)
 EXT(vxrun_near_return_sym):
-        jmp VXEMU_RETPTR_FAR(%r8)
-
+        jmp *VXEMU_RETPTR_FAR(%r8)
 
         .code32
 
@@ -258,3 +257,7 @@ EXT(vxrun_nullfrag_sym):
 
 	.globl	EXT(vx_rts_S_end_sym)
 EXT(vx_rts_S_end_sym):
+
+#if defined(__linux__) && defined(__ELF__)
+.section .note.GNU-stack,"",%progbits
+#endif

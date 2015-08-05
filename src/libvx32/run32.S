@@ -135,3 +135,7 @@ EXT(vxrun_cleanup):
 // Don't put anything here!
 // The signal handler knows that vxrun_cleanup
 // is at the bottom of this file.
+
+#if defined(__linux__) && defined(__ELF__)
+.section .note.GNU-stack,"",%progbits
+#endif
