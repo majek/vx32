@@ -107,8 +107,7 @@ int vxemu_init(struct vxproc *vxp)
 		install_rts_copy();
 	}
 	extern void vxrun_return();
-	e->retptr_far = vxrun_return;
-
+	e->retptr_far = (long)vxrun_return;
 
 	// Initialize the entrypoint table and translation buffer pointers
 	vxemu_flush(e);

@@ -198,6 +198,9 @@ static vxmmap *chunk_map(vxmem *mem, uint32_t flags)
 	mm = calloc(1, sizeof *mm);
 	if (mm == NULL)
 		return NULL;
+
+	/* Marek: I don't seem to quite understand why this MAP_SHARED
+	 * is needed. But it is. */
 	if ((v = mmap(0, chunk->size, PROT_NONE, MAP_32BIT | (vx_elfbigmem ? MAP_PRIVATE : MAP_SHARED), chunk->fd, 0)) == (void*)-1) {
 		free(mm);
 		return NULL;
