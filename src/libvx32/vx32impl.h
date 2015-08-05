@@ -6,7 +6,7 @@
 #include <ucontext.h>
 
 // Parameters tweakable for performance
-#define VXPROCSMAX	256		// Max # of vxprocs per host proc
+#define VXPROCSMAX	512		// Max # of vxprocs per host proc
 #define VXCODEALIGN	16		// Alignment for translated code
 #define VXCODEBUFSIZE	(1024*1024)	// Code buffer size (XX make variabale)
 #define VXENTRYHASHLEN	32768		// # entrypoints in entry hash table
