@@ -158,8 +158,10 @@ static int mmperm(int perm)
 			m |= PROT_READ;
 		if (perm & VXPERM_WRITE)
 			m |= PROT_WRITE;
-		if (perm & VXPERM_EXEC)
-			m |= PROT_EXEC;
+		/* The pages read from untusted binary need not to
+		 * actually be executable */
+		/* if (perm & VXPERM_EXEC) */
+		/* 	m |= PROT_EXEC; */
 	}
 	return m;
 }
