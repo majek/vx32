@@ -101,11 +101,13 @@ int vxemu_init(struct vxproc *vxp)
 	e->etablen = etablen;
 	e->etabmask = etablen - 1;
 
-	/* rts must be in lower 4 gigs */
+	/* On 64 bits Rts code must be in lower 4 gigs. If it's not
+	 * (pic?) copy over the code to dedicated page. */
 	if (((uint64_t)vx_rts_S_start_sym & ~0xFFFFFFFFULL) &&
 	    rts_copy == NULL) {
 		install_rts_copy();
 	}
+
 	extern void vxrun_return();
 	e->retptr_far = (long)vxrun_return;
 
