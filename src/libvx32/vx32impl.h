@@ -11,6 +11,9 @@
 #define VXCODEBUFSIZE	(1024*1024)	// Code buffer size (XX make variabale)
 #define VXENTRYHASHLEN	32768		// # entrypoints in entry hash table
 
+// Elf loader tweaks
+#define VX32_STACK 192*1024
+
 // VX memory access permissions have a granularity of 4KB pages.
 #define VXPAGESHIFT	12
 #define VXPAGESIZE	(1 << VXPAGESHIFT)		// 4KB

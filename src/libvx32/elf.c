@@ -15,8 +15,6 @@
 #include "elf.h"
 #include "words.h"
 
-#define VX32_ARG_MAX 10*1024
-#define VX32_STACK 64*1024
 #define VXMEMSIZE (1<<30)
 
 int vx_elfbigmem;
