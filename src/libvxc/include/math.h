@@ -362,4 +362,8 @@ float	lgammaf_r(float, int *);
  */
 float	significandf(float);
 
+
+static inline double exp2(double x) {return pow(2.0, x);};
+static inline double log2(double x) {return log(x) / M_LN2;};
+
 #endif /* !_MATH_H_ */
