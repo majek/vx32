@@ -49,3 +49,4 @@ offset	VXEMU_ETABLEN	vxemu	etablen
 offset	VXEMU_ETABMASK	vxemu	etabmask
 offset	VXEMU_ETAB	vxemu	etab
 
+offset	VXEMU_FPSTATE	vxemu	fpstate

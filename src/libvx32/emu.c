@@ -100,6 +100,7 @@ int vxemu_init(struct vxproc *vxp)
 	e->emuptr = (uint32_t)(intptr_t)e;
 	e->etablen = etablen;
 	e->etabmask = etablen - 1;
+	asm("fninit; vzeroall; fxsave %0"::"m"(e->fpstate));
 
 	/* On 64 bits Rts code must be in lower 4 gigs. If it's not
 	 * (pic?) copy over the code to dedicated page. */

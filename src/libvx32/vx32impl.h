@@ -162,6 +162,8 @@ struct vxemu {
 	uint32_t	saved_trap;	// trap to trigger after single-step
 	int	nsinglestep;
 
+	struct _fpstate     fpstate;
+
 #if defined(__FreeBSD__) || defined(__linux__)
 	mcontext_t		*trapenv;
 #elif defined(__APPLE__)

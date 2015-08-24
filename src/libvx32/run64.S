@@ -18,6 +18,7 @@ vx_run_S_start:
 
 	.globl	vxrun_setup
 vxrun_setup:
+        fxrstor VXEMU_FPSTATE(%rdi)
 
 	// Save the host's normal segment registers.
 	movw	%ss,%dx
@@ -123,6 +124,7 @@ vxrun_return:
 	.code64
 	.globl	vxrun_cleanup
 vxrun_cleanup:
+        fxsave VXEMU_FPSTATE(%rdi)
 
 	// Restore host's original segment registers.
 	movw	VXEMU_HOST_SS(%rdi),%ss
