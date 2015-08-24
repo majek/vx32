@@ -135,8 +135,8 @@ int vxemu_map(vxemu *emu, vxmmap *mm)
 	// Set up a far return vector in emu->retptr
 	// for getting back into 64-bit long mode.
 	asm volatile("movw %%cs,%0" : "=r" (emu->retptr.sel));
-extern void (*vxrun_near_return)();
 
+	extern void (*vxrun_near_return)();
 	emu->retptr.ofs = (uint32_t)(intptr_t)vxrun_near_return;
 #endif
 
@@ -146,7 +146,7 @@ extern void (*vxrun_near_return)();
 static void dumpsigcontext(struct sigcontext *ctx)
 {
 #ifdef i386
-	printf(
+	fprintf(stderr,
 		"eax %08lx  ebx %08lx\necx %08lx  edx %08lx  "
 		"rsi %08lx  rdi %08lx\nrbp %08lx  rsp %08lx\n"
 		"eip %08lx  efl %08lx  cs %04x\n"
@@ -156,7 +156,7 @@ static void dumpsigcontext(struct sigcontext *ctx)
 		ctx->eip, ctx->eflags, ctx->cs,
 		ctx->err, ctx->trapno, ctx->cr2);
 #else
-	printf(
+	fprintf(stderr,
 		"rax %016lx  rbx %016lx\nrcx %016lx  rdx %016lx\n"
 		"rsi %016lx  rdi %016lx\nrbp %016lx  rsp %016lx\n"
 		"r8  %016lx  r9  %016lx\nr10 %016lx  r11 %016lx\n"
@@ -234,7 +234,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		: "=r" (magic)
 		: "m" (((vxemu*)0)->magic));
 	if (magic != VXEMU_MAGIC)
-		return 0;
+		assert(0);
 
 	// Okay, we're convinced.
 

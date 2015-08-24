@@ -61,6 +61,9 @@ static void install_rts_copy() {
 	int rts_len = vx_rts_S_end_sym - vx_rts_S_start_sym;
 	rts_copy = mmap(NULL, rts_len, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | MAP_32BIT, -1, 0);
+	if (vx32_debugxlate) {
+		vxprint("Reallocating RTS from %p to %p\n", rts_copy, vx_rts_S_start_sym);
+	}
 	char *dst = rts_copy;
 	memcpy(dst, vx_rts_S_start_sym, rts_len);
 	mprotect(rts_copy, rts_len, PROT_READ | PROT_EXEC);
