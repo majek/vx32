@@ -324,7 +324,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		emu->cpu.reg[EBX] = ctx->ebx;
 		emu->cpu.reg[ECX] = ctx->ecx;
 		emu->cpu.reg[EDX] = ctx->edx;
-		emu->cpu.reg[ESI] =  ctx->esi;
+		emu->cpu.reg[ESI] = ctx->esi;
 		emu->cpu.reg[EDI] = ctx->edi;
 		emu->cpu.reg[ESP] = ctx->esp;	// or esp_at_signal ???
 		emu->cpu.reg[EBP] = ctx->ebp;
@@ -340,7 +340,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		if (r & VXSIG_SAVE_EDX)
 			emu->cpu.reg[EDX] = ctx->edx;
 		if (r & VXSIG_SAVE_ESI)
-			emu->cpu.reg[ESI] =  ctx->esi;
+			emu->cpu.reg[ESI] = ctx->esi;
 		if (r & VXSIG_SAVE_EDI)
 			emu->cpu.reg[EDI] = ctx->edi;
 		if (r & VXSIG_SAVE_ESP)
@@ -381,6 +381,8 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		
 		return 1;
 	}
+
+	assert(0);
 
 	// The signal handler is confused; so are we.
 	return 0;

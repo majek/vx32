@@ -1,0 +1,8 @@
+*.o
+*.d
+src/libvx32/asm-sym.s
+src/libvx32/asm-sym.c
+src/libvx32/asm.h
+src/.deps
+*.a
+*.so

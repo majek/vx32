@@ -39,8 +39,9 @@ static void sighandler(int signo, siginfo_t *si, void *ucontext)
 // suggest we weren't inside vxrun_setup ... vxrun_cleanup.
 int vxemu_sighandler(vxemu *emu, uint32_t trapeip)
 {
-	if (vx32_debugxlate)
-		vxprint("vxemu_sighandler %p %#x\n", emu, trapeip);
+	if (vx32_debugxlate) {
+		vxprint("vxemu_sighandler %p trapeip=%#x cpu_trap=%#x saved_trap=%#x\n", emu, trapeip, emu->cpu_trap, emu->saved_trap);
+	}
 
 	if (emu->cpu_trap == 0)
 		return VXSIG_ERROR;
