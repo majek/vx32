@@ -221,10 +221,6 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	// First sanity check vxproc segment number.
 	asm("movw %"VSEGSTR",%0"
 		: "=r" (vs));
-	
-	if(vx32_debugxlate) vxprint("vx32_sighandler signo=%d eip=%#x esp=%#x vs=%#x\n",
-		signo, ctx->ctxeip, ctx->esp, vs);
-	if(vx32_debugxlate) dumpsigcontext(ctx);
 
 	if ((vs & 15) != 15)	// 8 (emu), LDT, RPL=3
 		return 0;
@@ -256,6 +252,10 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		trapeip = ctx->ctxeip;
 	else
 		trapeip = 0xffffffff;
+
+	if(vx32_debugxlate) vxprint("vx32_sighandler signo=%d eip=%#x esp=%#x vs=%#x\n",
+				    signo, ctx->ctxeip, ctx->esp, vs);
+	if(vx32_debugxlate) dumpsigcontext(ctx);
 
 	int newtrap;
 	switch(signo){
