@@ -37,7 +37,7 @@ static void sighandler(int signo, siginfo_t *si, void *ucontext)
 // been executing actual vx32 translations.
 // Trapeip is 0xffffffff if the other segment registers 
 // suggest we weren't inside vxrun_setup ... vxrun_cleanup.
-int vxemu_sighandler(vxemu *emu, uint32_t trapeip)
+int vxemu_sighandler(vxemu *emu, uint32_t trapeip, struct sigcontext *ctx)
 {
 	if (vx32_debugxlate) {
 		vxprint("vxemu_sighandler %p trapeip=%#x cpu_trap=%#x saved_trap=%#x\n", emu, trapeip, emu->cpu_trap, emu->saved_trap);
@@ -175,15 +175,22 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip)
 			return VXSIG_TRAP | VXSIG_SAVE_ALL;
 
 		case VXI_CALL:
-			// Call pushes a return address onto the stack
-			// as the first instruction of the translation.
-			// We can't just pop it back off, because we would
-			// still need to restore the value that got overwritten.
-			// The target eip is stored in the word at byte 26 in
-			// the translation.
-			// Call does not trash any registers on the way 
-			// into vxrun_lookup_backpatch.
-			emu->cpu.eip = *(uint32_t*)(FRAGCODE(frag)+insn->dstofs+26);
+			// Original comment said:
+			// > Call pushes a return address onto the stack
+			// > as the first instruction of the translation.
+			// > We can't just pop it back off, because we would
+			// > still need to restore the value that got overwritten.
+			// > The target eip is stored in the word at byte 26 in
+			// > the translation.
+			// > Call does not trash any registers on the way
+			// > into vxrun_lookup_backpatch.
+			// >  emu->cpu.eip = *(uint32_t*)(FRAGCODE(frag)+insn->dstofs+26);
+			// This is wrong. While most instructions have the trampoline
+			// and its metadata straight after the code, this is not correct
+			// always. It is possible to have a gap between initial push,jmp
+			// and the trampoline. Let's just run the call again. For that
+			// we need to pop the return value off the stack.
+			ctx->rsp += 4;
 			return VXSIG_TRAP | VXSIG_SAVE_ALL;
 
 		case VXI_JUMPIND:

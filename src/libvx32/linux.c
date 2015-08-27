@@ -307,7 +307,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	}
 	emu->cpu_trap = newtrap;
 
-	r = vxemu_sighandler(emu, trapeip);
+	r = vxemu_sighandler(emu, trapeip, ctx);
 
 	if (r == VXSIG_SINGLESTEP){
 		// Vxemu_sighandler wants us to single step.

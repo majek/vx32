@@ -256,7 +256,7 @@ void	vxrun_cleanup(vxemu*);
 void	vxprint(char*, ...);
 
 int	vx32_sighandler(int, siginfo_t*, void*);
-int	vxemu_sighandler(vxemu*, uint32_t);
+int	vxemu_sighandler(vxemu*, uint32_t, struct sigcontext *ctx);
 
 #define USED(x) if(x){}	/* shut up gcc not-used warning */
 
