@@ -47,8 +47,13 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip, struct sigcontext *ctx)
 		return VXSIG_ERROR;
 	
 	// Not in vx32 code: assume registers saved already and trap.
-	if (trapeip == 0xffffffff)
+	if (trapeip == 0xffffffff) {
+		if (emu->saved_trap) {
+			emu->cpu_trap = emu->saved_trap;
+			emu->saved_trap = 0;
+		}
 		return VXSIG_TRAP;
+	}
 	
 	if (emu->ininst) {
 		// In the middle of translating an instruction,
@@ -82,10 +87,10 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip, struct sigcontext *ctx)
 		// won't know what to do.  If we're in vxrun_cleanup, then
 		// all the cpu registers are known to be saved.
 		extern const char vx_run_S_start[];
+		extern const char vx_run_S_end[];
 
 		if ((vx_rts_S_start_ptr <= (void*)eip && (void*)eip < vx_rts_S_end_ptr)
-		||  (vx_run_S_start <= eip && eip < (char*)vxrun_cleanup)){
-		SingleStep:
+		    ||  (vx_run_S_start <= eip && eip < vx_run_S_end)){
 			if(++emu->nsinglestep > 500){
 				// Give up: something is wrong.
 				vxprint("vx32: single-stepping but stuck\n");

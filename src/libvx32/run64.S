@@ -138,6 +138,10 @@ vxrun_cleanup:
 // The signal handler knows that vxrun_cleanup
 // is at the bottom of this file.
 
+	.globl	vx_run_S_end
+vx_run_S_end:
+
+
 #if defined(__linux__) && defined(__ELF__)
 .section .note.GNU-stack,"",%progbits
 #endif

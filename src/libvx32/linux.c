@@ -14,6 +14,9 @@
 #include "vx32impl.h"
 #include "os.h"
 
+#include "rts.h"
+
+
 extern int modify_ldt(int, void*, unsigned long);
 
 int vxemu_map(vxemu *emu, vxmmap *mm)
@@ -250,8 +253,13 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	emu->fpstate = old;
 
 	// dumpsigcontext(ctx);
+	int abc = 0;
+	if ((vx_rts_S_start_ptr <= (void*)ctx->ctxeip && (void*)ctx->ctxeip < vx_rts_S_end_ptr)
+	    ) {
+		abc = 1;
+	}
 
-	if (VX32_BELIEVE_EIP)
+	if (VX32_BELIEVE_EIP || abc)
 		trapeip = ctx->ctxeip;
 	else
 		trapeip = 0xffffffff;
@@ -289,7 +297,8 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 			ctx->eflags &= ~EFLAGS_TF;
 		}else{
 			vxprint("Unexpected sigtrap eflags=%#x\n", ctx->eflags);
-			newtrap = VXTRAP_SIGNAL + signo;
+			newtrap = VXTRAP_SINGLESTEP;
+//			newtrap = VXTRAP_SIGNAL + signo;
 		}
 		break;
 
