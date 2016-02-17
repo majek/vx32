@@ -280,6 +280,8 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		// it appears that Linux turns it back on for us.
 		// Let's use it to confirm that this is a single-step trap.
 		if (ctx->eflags & EFLAGS_TF){
+			if (vx32_debugxlate)
+				vxprint("tf was set eflags=%#x signo=%d\n", ctx->eflags, signo);
 			newtrap = VXTRAP_SINGLESTEP;
 			ctx->eflags &= ~EFLAGS_TF;
 		}else{
