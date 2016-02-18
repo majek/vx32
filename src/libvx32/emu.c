@@ -90,8 +90,7 @@ int vxemu_init(struct vxproc *vxp)
 	vxemu *e = mmap(NULL, VXCODEBUFSIZE,
 			PROT_READ | PROT_WRITE | PROT_EXEC,
 			MAP_PRIVATE | MAP_ANONYMOUS | MAP_32BIT, -1, 0);
-	if (e == MAP_FAILED){
-		vxprint("vxemu_init: mmap failed\n");
+	if (e == MAP_FAILED) {
 		return -1;
 	}
 
