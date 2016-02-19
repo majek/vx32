@@ -298,6 +298,8 @@ vxmem *vxmem_chunk_new(int size)
 	if ((fd = mkstemp(tmpfn)) < 0)
 		return NULL;
 	unlink(tmpfn);
+	fcntl(fd, F_SETFD, FD_CLOEXEC);
+
 	if ((mem = vxmem_chunk_fromfd(fd, size)) == NULL) {
 		close(fd);
 		return NULL;
