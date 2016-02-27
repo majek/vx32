@@ -310,7 +310,8 @@ static int elfloader(vxproc *proc,
 		free(argvenv);
 		goto error;
 	}
-	
+	free(argvenv);
+
 	// Set up stack just like Linux: argc, then argv pointers begin, then env pointers.
 	esp -= 4;
 	*(uint32_t*)(mm->base+esp) = argc;
