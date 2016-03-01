@@ -1701,6 +1701,7 @@ static void xemit(struct vxproc *p)
 			break;
 
 		case VXI_RETURN:
+		case VXI_RETURN_IMM:
 		case VXI_JUMPIND:
 		case VXI_CALLIND:
 			xemit_indir(p, itype, i++);
@@ -1711,6 +1712,7 @@ static void xemit(struct vxproc *p)
 			break;
 
 		default:
+			fprintf(stderr, "itype=%d\n", itype);
 			assert(0);
 		}
 	}
