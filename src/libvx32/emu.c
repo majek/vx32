@@ -105,10 +105,15 @@ int vxemu_init(struct vxproc *vxp)
 	asm("fninit; vzeroall; fxsave %0"::"m"(e->fpstate));
 
 	/* On 64 bits Rts code must be in lower 4 gigs. If it's not
-	 * (pic?) copy over the code to dedicated page. */
+	 * (PiC?) copy over the code to dedicated page. */
 	if (((uint64_t)vx_rts_S_start_sym & ~0xFFFFFFFFULL) &&
 	    rts_copy == NULL) {
 		install_rts_copy();
+	}
+
+	if (vx32_debugxlate) {
+		vxprint("RTS is located at %p - %p\n",
+			vx_rts_S_start_ptr, vx_rts_S_end_ptr);
 	}
 
 	extern void vxrun_return();

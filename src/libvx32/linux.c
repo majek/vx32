@@ -240,6 +240,9 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		: "m" (((vxemu*)0)->proc));
 	emu = vxp->emu;
 
+	vxprint("vx32_sighandler, got signal %d cpu_trap=%d saved_trap=%d\n",
+		signo, emu->cpu_trap, emu->saved_trap);
+
 	// Get back our regular host segment register state,
 	// so that thread-local storage and such works.
 	struct _fpstate old = emu->fpstate;
@@ -310,6 +313,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	emu->cpu_trap = newtrap;
 
 	r = vxemu_sighandler(emu, trapeip, ctx);
+	vxprint("after sighandler, r=%d\n", r);
 
 	if (r == VXSIG_SINGLESTEP){
 		// Vxemu_sighandler wants us to single step.
@@ -317,6 +321,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		ctx->eflags |= EFLAGS_TF;		// x86 TF (single-step) bit
 		emu->fpstate = *ctx->fpstate;
 		vxrun_setup(emu);
+		vxprint("after sighandler return 1\n");
 		return 1;
 	}
 
@@ -371,8 +376,10 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	}
 
 	if (r == VXSIG_TRAP) {
-		if (emu->trapenv == NULL)
+		if (emu->trapenv == NULL) {
+			vxprint("after sighandler return 0\n");
 			return 0;
+		}
 		emu->cpu.traperr = ctx->err;
 		// Usually, ctx->cr2 == si->si_addr.
 		// But on a segmentation fault (as opposed to a paging fault),
@@ -381,6 +388,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		emu->cpu.trapva = (uint32_t)(uintptr_t)si->si_addr;
 		memmove(mc->gregs, emu->trapenv->gregs, sizeof emu->trapenv->gregs);
 		
+		vxprint("after sighandler return 1 (a)\n");
 		return 1;
 	}
 

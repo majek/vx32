@@ -40,7 +40,7 @@ static void sighandler(int signo, siginfo_t *si, void *ucontext)
 int vxemu_sighandler(vxemu *emu, uint32_t trapeip, struct sigcontext *ctx)
 {
 	if (vx32_debugxlate) {
-		vxprint("vxemu_sighandler %p trapeip=%#x cpu_trap=%#x saved_trap=%#x\n", emu, trapeip, emu->cpu_trap, emu->saved_trap);
+		vxprint("vxemu_sighandler emu=%p trapeip=%#x cpu_trap=%#x saved_trap=%#x\n", emu, trapeip, emu->cpu_trap, emu->saved_trap);
 	}
 
 	if (emu->cpu_trap == 0)
@@ -93,6 +93,8 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip, struct sigcontext *ctx)
 			}
 			emu->saved_trap = emu->cpu_trap;
 			emu->cpu_trap = 0;
+
+			vxprint("vx32: enabling single-stepping eip=%p\n", eip);
 			return VXSIG_SINGLESTEP;
 		}
 	}
