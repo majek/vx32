@@ -280,6 +280,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		newtrap = VXTRAP_FLOAT;
 		break;
 	
+	case SIGALRM:
 	case SIGVTALRM:
 		newtrap = VXTRAP_IRQ + VXIRQ_TIMER;
 		break;
