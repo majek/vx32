@@ -243,14 +243,15 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		: "m" (((vxemu*)0)->proc));
 	emu = vxp->emu;
 
-	vxprint("vx32_sighandler, got signal %d cpu_trap=%d saved_trap=%d\n",
-		signo, emu->cpu_trap, emu->saved_trap);
-
 	// Get back our regular host segment register state,
 	// so that thread-local storage and such works.
 	struct _fpstate old = emu->fpstate;
 	vxrun_cleanup(emu);
 	emu->fpstate = old;
+
+	vxprint("vx32_sighandler, got signal %d cpu_trap=%d saved_trap=%d eip=%p\n",
+		signo, emu->cpu_trap, emu->saved_trap, ctx->ctxeip);
+
 
 	// dumpsigcontext(ctx);
 	int abc = 0;
@@ -329,8 +330,8 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		// Execution state is in intermediate state - don't touch.
 		ctx->eflags |= EFLAGS_TF;		// x86 TF (single-step) bit
 		emu->fpstate = *ctx->fpstate;
+		vxprint("after sighandler return 1 %p=\n", ctx->ctxeip);
 		vxrun_setup(emu);
-		vxprint("after sighandler return 1\n");
 		return 1;
 	}
 
