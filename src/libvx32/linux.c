@@ -249,10 +249,10 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 
 	// Get back our regular host segment register state,
 	// so that thread-local storage and such works.
-	struct _fpstate old = emu->fpstate;
 	vxrun_cleanup(emu);
-	emu->fpstate = old;
 
+	/* vxrun_cleanup saved fpstate, but we trust more the context */
+	emu->fpstate = *ctx->fpstate;
 
 	if (vx32_debugxlate) {
 		vxprint("%p signo=%d handling signal\n", (void*)ctx->ctxeip, signo);
@@ -338,7 +338,6 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		// Vxemu_sighandler wants us to single step.
 		// Execution state is in intermediate state - don't touch.
 		ctx->eflags |= EFLAGS_TF;		// x86 TF (single-step) bit
-		emu->fpstate = *ctx->fpstate;
 		vxrun_setup(emu);
 		return 1;
 	}
@@ -354,7 +353,6 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		emu->cpu.reg[ESP] = ctx->esp;	// or esp_at_signal ???
 		emu->cpu.reg[EBP] = ctx->ebp;
 		emu->cpu.eflags = ctx->eflags;
-		emu->fpstate = *ctx->fpstate;
 	} else if (r & VXSIG_SAVE_ALL) {
 		if (r & VXSIG_SAVE_EAX)
 			emu->cpu.reg[EAX] = ctx->eax;
@@ -374,7 +372,6 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 			emu->cpu.reg[EBP] = ctx->ebp;
 		if (r & VXSIG_SAVE_EFLAGS)
 			emu->cpu.eflags = ctx->eflags;
-		emu->fpstate = *ctx->fpstate;
 	}
 	r &= ~VXSIG_SAVE_ALL;
 
