@@ -1836,7 +1836,7 @@ int vxproc_run(struct vxproc *vxp)
 	uint16_t vs;
 	// Registers can't be already loaded or we will smash
 	// the "host segment registers" part of emu.
-	asm("movw %"VSEGSTR",%0"
+	asm volatile("movw %"VSEGSTR",%0"
 		: "=r" (vs));
 
 	assert(vs != emu->emusel);

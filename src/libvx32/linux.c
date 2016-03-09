@@ -222,7 +222,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	// valid vxemu.  The only way to tell is to look at %VSEG.
 
 	// First sanity check vxproc segment number.
-	asm("movw %"VSEGSTR",%0"
+	asm volatile("movw %"VSEGSTR",%0"
 		: "=r" (vs));
 
 	if ((vs & 15) != 15) {	// 8 (emu), LDT, RPL=3
@@ -233,7 +233,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	}
 
 	// Okay, assume mapped; check for vxemu.
-	asm("movl %"VSEGSTR":%1,%0"
+	asm volatile("movl %"VSEGSTR":%1,%0"
 		: "=r" (magic)
 		: "m" (((vxemu*)0)->magic));
 	if (magic != VXEMU_MAGIC)
@@ -242,7 +242,7 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	// Okay, we're convinced.
 
 	// Find current vxproc and vxemu.
-	asm("mov %"VSEGSTR":%1,%0"
+	asm volatile("mov %"VSEGSTR":%1,%0"
 		: "=r" (vxp)
 		: "m" (((vxemu*)0)->proc));
 	emu = vxp->emu;
