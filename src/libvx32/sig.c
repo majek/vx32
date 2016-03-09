@@ -297,17 +297,16 @@ int vx32_siginit(void)
 	}
 
 	sigset_t block_mask;
-	sigaddset (&block_mask, SIGTRAP);
-	sigaddset (&block_mask, SIGALRM);
-	sigaddset (&block_mask, SIGVTALRM);
+	sigemptyset(&block_mask);
+	sigaddset(&block_mask, SIGTRAP);
+	sigaddset(&block_mask, SIGALRM);
+	sigaddset(&block_mask, SIGVTALRM);
 
 	// Register our signal handler.
 	memset(&sa, 0, sizeof sa);
 	sa.sa_handler = (void*)sighandler;
 	sa.sa_flags = SA_ONSTACK | SA_SIGINFO;
 	sa.sa_mask = block_mask;
-	if (sigemptyset(&sa.sa_mask) < 0)
-		return -1;
 	if (sigaction(SIGSEGV, &sa, NULL) < 0)
 		return -1;
 	if (sigaction(SIGBUS, &sa, NULL) < 0)
