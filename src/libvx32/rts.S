@@ -32,13 +32,13 @@ vxrun_return_stub:
 EXT(vx_rts_S_start_sym):
 
 
-
-        .code64
+#ifndef __i386
        .globl  EXT(vxrun_near_return_sym)
 EXT(vxrun_near_return_sym):
+        .code64
         jmp *VXEMU_RETPTR_FAR(%r8)
-
         .code32
+#endif
 
 
 // Look up a vx32 EIP and jump to the corresponding translated code entrypoint,

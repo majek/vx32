@@ -194,7 +194,11 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip, struct sigcontext *ctx)
 			// always. It is possible to have a gap between initial push,jmp
 			// and the trampoline. Let's just run the call again. For that
 			// we need to pop the return value off the stack.
+			#ifdef i386
+			ctx->esp += 4;
+			#else
 			ctx->rsp += 4;
+			#endif
 			return VXSIG_TRAP | VXSIG_SAVE_ALL;
 
 		case VXI_JUMPIND:

@@ -36,13 +36,19 @@ extern void (vxrun_gentrap_sym)();
 extern void (vxrun_lookup_backpatch_sym)();
 extern void (vxrun_lookup_indirect_sym)();
 extern void (vxrun_nullfrag_sym)();
+
+#ifndef __i386
 extern void (vxrun_near_return_sym)();
+#endif
 
 void (*vxrun_gentrap)() = vxrun_gentrap_sym;
 void (*vxrun_lookup_backpatch)() = vxrun_lookup_backpatch_sym;
 void (*vxrun_lookup_indirect)() = vxrun_lookup_indirect_sym;
 void (*vxrun_nullfrag)() = vxrun_nullfrag_sym;
+
+#ifndef __i386
 void (*vxrun_near_return)() = vxrun_near_return_sym;
+#endif
 
 
 // Special values for unused entries in entrypoint hash table
@@ -55,6 +61,7 @@ static uint64_t nflush;
 
 static void disassemble(uint8_t *addr0, uint8_t*, uint8_t*);
 
+#ifndef __i386
 static void *rts_copy = NULL;
 
 static void install_rts_copy() {
@@ -77,6 +84,7 @@ static void install_rts_copy() {
 	FIX(vxrun_near_return);
 #undef FIX
 }
+#endif
 
 // Create the emulation state for a new process
 int vxemu_init(struct vxproc *vxp)
@@ -102,22 +110,30 @@ int vxemu_init(struct vxproc *vxp)
 	e->emuptr = (uint32_t)(intptr_t)e;
 	e->etablen = etablen;
 	e->etabmask = etablen - 1;
-	asm("fninit; vzeroall; fxsave %0"::"m"(e->fpstate));
 
+#ifndef __i386
+	asm("fninit; vzeroall; fxsave %0"::"m"(e->fpstate));
+#else
+	asm("fninit; vzeroall; fsave %0"::"m"(e->fpstate));
+#endif
+
+#ifndef __i386
 	/* On 64 bits Rts code must be in lower 4 gigs. If it's not
 	 * (PiC?) copy over the code to dedicated page. */
 	if (((uint64_t)vx_rts_S_start_sym & ~0xFFFFFFFFULL) &&
 	    rts_copy == NULL) {
 		install_rts_copy();
 	}
-
+#endif
 	if (vx32_debugxlate) {
 		vxprint("RTS is located at %p - %p\n",
 			vx_rts_S_start_ptr, vx_rts_S_end_ptr);
 	}
 
+#ifndef __i386
 	extern void vxrun_return();
 	e->retptr_far = (long)vxrun_return;
+#endif
 
 	// Initialize the entrypoint table and translation buffer pointers
 	vxemu_flush(e);

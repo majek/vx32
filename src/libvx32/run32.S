@@ -131,7 +131,10 @@ EXT(vxrun_cleanup):
 
 	cld
 	ret
-	
+
+.globl	vx_run_S_end
+vx_run_S_end:
+
 // Don't put anything here!
 // The signal handler knows that vxrun_cleanup
 // is at the bottom of this file.
