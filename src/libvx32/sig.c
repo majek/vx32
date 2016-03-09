@@ -96,7 +96,9 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip, struct sigcontext *ctx)
 			emu->saved_trap = emu->cpu_trap;
 			emu->cpu_trap = 0;
 
-			vxprint("vx32: enabling single-stepping eip=%p\n", eip);
+			if (vx32_debugxlate){
+				vxprint("vx32: enabling single-stepping eip=%p\n", eip);
+			}
 			return VXSIG_SINGLESTEP;
 		}
 	}

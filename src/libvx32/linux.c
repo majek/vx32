@@ -225,8 +225,12 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	asm("movw %"VSEGSTR",%0"
 		: "=r" (vs));
 
-	if ((vs & 15) != 15)	// 8 (emu), LDT, RPL=3
+	if ((vs & 15) != 15) {	// 8 (emu), LDT, RPL=3
+		if (vx32_debugxlate > 2) {
+			vxprint("%p signo=%d SKIP\n", (void*)ctx->ctxeip, signo);
+		}
 		return 0;
+	}
 
 	// Okay, assume mapped; check for vxemu.
 	asm("movl %"VSEGSTR":%1,%0"
@@ -249,10 +253,17 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	vxrun_cleanup(emu);
 	emu->fpstate = old;
 
-	vxprint("vx32_sighandler, got signal %d cpu_trap=%d saved_trap=%d eip=%p\n",
-		signo, emu->cpu_trap, emu->saved_trap, ctx->ctxeip);
 
+	if (vx32_debugxlate) {
+		vxprint("%p signo=%d handling signal\n", (void*)ctx->ctxeip, signo);
+		if ((ctx->eflags & EFLAGS_TF) && signo != SIGTRAP) {
+			vxprint("TF set but signal is NOT trap %d\n", signo);
+		}
+	}
 
+	if (vx32_debugxlate) {
+		vxprint("vx32_sighandler, got signal %d cpu_trap=%d saved_trap=%d eip=%p\n",
+			signo, emu->cpu_trap, emu->saved_trap, ctx->ctxeip);
 	// dumpsigcontext(ctx);
 	int abc = 0;
 	if ((vx_rts_S_start_ptr <= (void*)ctx->ctxeip && (void*)ctx->ctxeip < vx_rts_S_end_ptr)
@@ -298,9 +309,10 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 			newtrap = VXTRAP_SINGLESTEP;
 			ctx->eflags &= ~EFLAGS_TF;
 		}else{
-			vxprint("Unexpected sigtrap eflags=%#x\n", ctx->eflags);
 			newtrap = VXTRAP_SINGLESTEP;
 //			newtrap = VXTRAP_SIGNAL + signo;
+			if (vx32_debugxlate)
+				vxprint("Unexpected sigtrap eflags=%#x\n", ctx->eflags);
 		}
 		break;
 
@@ -324,14 +336,15 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	emu->cpu_trap = newtrap;
 
 	r = vxemu_sighandler(emu, trapeip, ctx);
-	vxprint("after sighandler, r=%d\n", r);
+	if (vx32_debugxlate) {
+		vxprint("after sighandler, r=%d\n", r);
+	}
 
 	if (r == VXSIG_SINGLESTEP){
 		// Vxemu_sighandler wants us to single step.
 		// Execution state is in intermediate state - don't touch.
 		ctx->eflags |= EFLAGS_TF;		// x86 TF (single-step) bit
 		emu->fpstate = *ctx->fpstate;
-		vxprint("after sighandler return 1 %p=\n", ctx->ctxeip);
 		vxrun_setup(emu);
 		return 1;
 	}
@@ -388,7 +401,6 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 
 	if (r == VXSIG_TRAP) {
 		if (emu->trapenv == NULL) {
-			vxprint("after sighandler return 0\n");
 			return 0;
 		}
 		emu->cpu.traperr = ctx->err;
@@ -398,8 +410,6 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		// Be sure to use si_addr, not cr2.
 		emu->cpu.trapva = (uint32_t)(uintptr_t)si->si_addr;
 		memmove(mc->gregs, emu->trapenv->gregs, sizeof emu->trapenv->gregs);
-		
-		vxprint("after sighandler return 1 (a)\n");
 		return 1;
 	}
 

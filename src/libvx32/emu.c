@@ -1733,7 +1733,7 @@ static void xemit(struct vxproc *p)
 			break;
 
 		default:
-			fprintf(stderr, "itype=%d\n", itype);
+			vxprint("itype=%d\n", itype);
 			assert(0);
 		}
 	}
