@@ -86,10 +86,7 @@ int vxemu_sighandler(vxemu *emu, uint32_t trapeip, struct sigcontext *ctx)
 		// the vx32 segment register doesn't point at emu and 
 		// won't know what to do.  If we're in vxrun_cleanup, then
 		// all the cpu registers are known to be saved.
-		extern const char vx_run_S_start[];
-		extern const char vx_run_S_end[];
-
-		if ((vx_rts_S_start_ptr <= (void*)eip && (void*)eip < vx_rts_S_end_ptr)
+		if ((vx_rts_S_start_ptr <= eip && eip < vx_rts_S_end_ptr)
 		    ||  (vx_run_S_start <= eip && eip < vx_run_S_end)){
 			if(++emu->nsinglestep > 500){
 				// Give up: something is wrong.

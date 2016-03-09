@@ -28,8 +28,8 @@
 
 
 extern char vx_rts_S_start_sym[], vx_rts_S_end_sym[];
-const void *vx_rts_S_start_ptr = vx_rts_S_start_sym;
-const void *vx_rts_S_end_ptr = vx_rts_S_end_sym;
+const char *vx_rts_S_start_ptr = vx_rts_S_start_sym;
+const char *vx_rts_S_end_ptr = vx_rts_S_end_sym;
 
 
 extern void (vxrun_gentrap_sym)();
