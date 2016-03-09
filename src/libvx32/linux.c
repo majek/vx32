@@ -264,14 +264,9 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 	if (vx32_debugxlate) {
 		vxprint("vx32_sighandler, got signal %d cpu_trap=%d saved_trap=%d eip=%p\n",
 			signo, emu->cpu_trap, emu->saved_trap, ctx->ctxeip);
-	// dumpsigcontext(ctx);
-	int abc = 0;
-	if ((vx_rts_S_start_ptr <= (void*)ctx->ctxeip && (void*)ctx->ctxeip < vx_rts_S_end_ptr)
-	    ) {
-		abc = 1;
 	}
 
-	if (VX32_BELIEVE_EIP || abc)
+	if (VX32_BELIEVE_EIP)
 		trapeip = ctx->ctxeip;
 	else
 		trapeip = 0xffffffff;
@@ -309,10 +304,9 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 			newtrap = VXTRAP_SINGLESTEP;
 			ctx->eflags &= ~EFLAGS_TF;
 		}else{
-			newtrap = VXTRAP_SINGLESTEP;
-//			newtrap = VXTRAP_SIGNAL + signo;
 			if (vx32_debugxlate)
 				vxprint("Unexpected sigtrap eflags=%#x\n", ctx->eflags);
+			newtrap = VXTRAP_SIGNAL + signo;
 		}
 		break;
 
