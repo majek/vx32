@@ -199,8 +199,17 @@ fprestore(struct _fpstate *s)
 	asm volatile("frstor 0(%%eax); fwait\n" : : "a" (s) : "memory");
 }
 
+#define getsegment(reg) \
+         ({ \
+                 unsigned short __value; \
+                 asm volatile("mov %%" #reg ",%0":"=rm" (__value)); \
+                 __value; \
+         })
+
+
 int vx32_sighandler(int signo, siginfo_t *si, void *v)
 {
+	uint16_t start_ss = getsegment(ss);
 	uint32_t trapeip;
 	uint32_t magic;
 	uint16_t vs;
@@ -246,6 +255,61 @@ int vx32_sighandler(int signo, siginfo_t *si, void *v)
 		: "=r" (vxp)
 		: "m" (((vxemu*)0)->proc));
 	emu = vxp->emu;
+
+	/* If we got signal during the iret_trampoline, well,
+	 * continuing is the correct thing to do. */
+	if ((signo == SIGALRM || signo == SIGVTALRM) &&
+	    ((void*)ctx->ctxeip == iret_trampoline)) {
+		if (vx32_debugxlate > 2) {
+			vxprint("%p signo=%d got signal during iret trampoline\n",
+				(void*)ctx->ctxeip, signo);
+		}
+		return 1;
+	}
+
+
+	/* Pardon this long story. There is a bug in original vx32
+	 * which causes the guest proces to crash when signal happens
+	 * on vxrun or vxrun_return. I think the client needs to use
+	 * fpu / mmx to trigger the problem. Very hard to debug.
+	 * Instead, let's just ignore timer signals if they happen in
+	 * the critical translation / transition code. This is easier,
+	 * safer, and more manageable.
+	 *
+	 * Sadly one can't just return to guest. SS register is lost, so
+	 * it's neccesary to use a trampoline:
+	 * http://www.x86-64.org/pipermail/discuss/2007-May/009913.html
+	 * https://lkml.org/lkml/2015/8/13/803
+	 * aka: the famous dosemu iret hack.
+	 *
+	 * Furthermore the intentions of vx32 authors are unclear. The
+	 * rts.S / run.S code is clearly intended to be SINGLESTEP'ped
+	 * in sig.c but the VX32_BELIEVE_EIP is false for whole run.S.
+	 * Unfortunately SINGLESTEP'ping is possible only as long as
+	 * you don't encounter any instruction relying on ss register.
+	 */
+	char *eip = (void*)ctx->ctxeip;
+
+	int critical_code = 0;
+	critical_code |= vx_rts_S_start_ptr <= eip && eip < vx_rts_S_end_ptr;
+	critical_code |= vx_run_S_start <= eip && eip < vx_run_S_end;
+	if ((signo == SIGALRM || signo == SIGVTALRM) && critical_code) {
+		if (vx32_debugxlate) {
+			vxprint("%p signo=%d ignored with iret trampoline\n",
+				(void*)ctx->ctxeip, signo);
+		}
+
+		emu->iret_stack[0] = ctx->ctxeip;
+		emu->iret_stack[1] = ctx->cs;
+		emu->iret_stack[2] = ctx->eflags;
+		emu->iret_stack[3] = ctx->rsp;
+		emu->iret_stack[4] = start_ss;
+
+		ctx->cs = getsegment(cs);
+		ctx->ctxeip = (long)iret_trampoline;
+		ctx->rsp = (long)emu->iret_stack;
+		return 1;
+	}
 
 	// Get back our regular host segment register state,
 	// so that thread-local storage and such works.

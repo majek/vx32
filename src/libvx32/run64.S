@@ -10,6 +10,14 @@
 	.globl	vx_run_S_start
 vx_run_S_start:
 
+// Iretq trampoline to return back to guest
+//   http://www.x86-64.org/pipermail/discuss/2007-May/009913.html
+	.globl	iret_trampoline
+iret_trampoline:
+	.code64
+        iretq
+
+
 // Set up the segment registers as necessary for the emulation environment.
 // Args:
 //	rdi: vxemu pointer

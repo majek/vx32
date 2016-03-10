@@ -164,6 +164,13 @@ struct vxemu {
 
 	struct _fpstate     fpstate;
 
+	// iret stack
+#ifdef	__i386		// x86-32
+	uint32_t iret_stack[5];
+#else			// x86-64
+	uint64_t iret_stack[5];
+#endif
+
 #if defined(__FreeBSD__) || defined(__linux__)
 	mcontext_t		*trapenv;
 #elif defined(__APPLE__)
@@ -254,6 +261,8 @@ int	vxrun(vxemu*, uint32_t dsteip);
 void	vxrun_setup(vxemu*);
 void	vxrun_cleanup(vxemu*);
 void	vxprint(char*, ...);
+
+void    iret_trampoline();
 
 int	vx32_sighandler(int, siginfo_t*, void*);
 int	vxemu_sighandler(vxemu*, uint32_t, struct sigcontext *ctx);
