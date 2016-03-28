@@ -273,7 +273,7 @@ static vxmem chunk_proto =
 	chunk_free,
 };
 
-static vxmem *vxmem_chunk_fromfd(int fd, off_t size)
+vxmem *vxmem_chunk_fromfd(int fd, off_t size)
 {
 	vxmem_chunk *chunk;
 	

@@ -279,7 +279,7 @@ int vx32_siginit(void)
 	stack_t ss;
 	void *stk;
 	struct sigaction sa;
-	
+
 	// See if there's already an alternate signal stack.
 	if (sigaltstack(NULL, &ss) < 0)
 		return -1;

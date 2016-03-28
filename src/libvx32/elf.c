@@ -21,7 +21,8 @@ int vx_elfbigmem;
 
 static int elfloader(vxproc *p,
 	ssize_t (*readcb)(void*, off_t, void*, size_t), void*,
-	const char *const *argv, const char *const *envp);
+	const char *const *argv, const char *const *envp,
+	int chunk_fd);
 
 // From a file.
 
@@ -41,7 +42,8 @@ static ssize_t loadfilecb(void *cbdata, off_t offset, void *buf, size_t size)
 }
 
 int vxproc_loadelffile(vxproc *p, const char *file,
-	const char *const *argv, const char *const *envp)
+		       const char *const *argv, const char *const *envp,
+		       int chunk_fd)
 {
 	int fd, rc;
 	struct filedesc desc;
@@ -49,7 +51,7 @@ int vxproc_loadelffile(vxproc *p, const char *file,
 	if ((fd = open(file, O_RDONLY)) < 0)
 		return -1;
 	desc.fd = fd;
-	rc = elfloader(p, loadfilecb, &desc, argv, envp);
+	rc = elfloader(p, loadfilecb, &desc, argv, envp, chunk_fd);
 	close(fd);
 	return rc;
 }
@@ -74,13 +76,13 @@ static ssize_t loadmemcb(void *cbdata, off_t offset, void *buf, size_t size)
 }
 
 int vxproc_loadelfmem(vxproc *p, const void *exe, size_t size,
-	const char *const *argv, const char *const *envp)
+		      const char *const *argv, const char *const *envp, int chunk_fd)
 {
 	struct memdesc desc;
 	
 	desc.buf = exe;
 	desc.size = size;
-	return elfloader(p, loadmemcb, &desc, argv, envp);
+	return elfloader(p, loadmemcb, &desc, argv, envp, chunk_fd);
 }
 
 
@@ -132,7 +134,8 @@ static int copyptrs(uint8_t *base, uint32_t *espp, int argc, uint32_t *gargv)
 static int elfloader(vxproc *proc,
               ssize_t (*readcb)(void*, off_t, void*, size_t),
               void *cbdata,
-              const char *const *argv, const char *const *envp)
+	      const char *const *argv, const char *const *envp,
+	      int chunk_fd)
 {
 	vxmem *mem;
 	int i;
@@ -160,7 +163,7 @@ static int elfloader(vxproc *proc,
 
 	mm = NULL;
 
-	if ((mem = vxmem_chunk_new(size)) == NULL)
+	if ((mem = vxmem_chunk_fromfd(chunk_fd, size)) == NULL)
 		return -1;
 
 	// Read and check the ELF header

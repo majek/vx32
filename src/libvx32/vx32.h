@@ -104,6 +104,7 @@ int	vxmem_resize(vxmem*, size_t);
 
 vxmem*	vxmem_chunk_new(int);
 vxmem*	vxmem_chunk_copy(vxmem*);
+vxmem*  vxmem_chunk_fromfd(int fd, off_t size);
 
 // A single memory-mapped address space region.
 struct vxmmap {
@@ -129,9 +130,9 @@ void	vxproc_flush(vxproc *proc);
 
 // ELF loader
 int	vxproc_loadelffile(vxproc *p, const char *file,
-	const char *const *argv, const char *const *envp);
+	const char *const *argv, const char *const *envp, int chunk_fd);
 int	vxproc_loadelfmem(vxproc *p, const void *mem, size_t nmem,
-	const char *const *argv, const char *const *envp);
+	const char *const *argv, const char *const *envp, int chunk_fd);
 
 // VX system call numbers
 #define VXPC_EXIT 0x1000
