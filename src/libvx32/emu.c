@@ -112,12 +112,6 @@ int vxemu_init(struct vxproc *vxp)
 	e->etabmask = etablen - 1;
 
 #ifndef __i386
-	asm("fninit; vzeroall; fxsave %0"::"m"(e->fpstate));
-#else
-	asm("fninit; vzeroall; fsave %0"::"m"(e->fpstate));
-#endif
-
-#ifndef __i386
 	/* On 64 bits Rts code must be in lower 4 gigs. If it's not
 	 * (PiC?) copy over the code to dedicated page. */
 	if (((uint64_t)vx_rts_S_start_sym & ~0xFFFFFFFFULL) &&
